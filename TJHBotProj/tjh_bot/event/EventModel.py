@@ -12,8 +12,9 @@ TYPE_NAME_SEMINAR = "ゼミナール"
 TYPE_NAME_REPORT = "課題研究"
 TYPE_NAME_LECTURE = "講義"
 
-ALERT_PREVIOUS_DAY = "■■■■■■　納期前日です！　■■■■■■"
-ALERT_PREVIOUS_WEEK = "■■■　納期１週間前です！　■■■"
+ALERT_TODAY = "■■■■■■■■■　納期／本番当日です！　■■■■■■■■■"
+ALERT_PREVIOUS_DAY = "■■■■■■　納期／本番前日です！　■■■■■■"
+ALERT_PREVIOUS_WEEK = "■■■　納期／本番１週間前です！　■■■"
 
 
 class EventModel:
@@ -123,6 +124,15 @@ class EventModel:
             else:
                 self.__type = TYPE_NAME_LECTURE
 
+    # 当日フラグ
+    @property
+    def today_flag(self):
+        return self.__today_flag
+
+    @today_flag.setter
+    def today_flag(self, today_flag):
+        self.__today_flag = today_flag
+
     # 前日フラグ
     @property
     def previous_day_flag(self):
@@ -148,7 +158,9 @@ class EventModel:
         # 納期が迫っている場合に表示する
         # 納期フラグは、Eランと研究課題について設定される
         previous_message = ""
-        if self.__previous_day_flag:
+        if self.__today_flag:
+            previous_message = ALERT_TODAY + "\n"
+        elif self.__previous_day_flag:
             previous_message = ALERT_PREVIOUS_DAY + "\n"
         elif self.__previous_week_flag:
             previous_message = ALERT_PREVIOUS_WEEK + "\n"
@@ -239,5 +251,6 @@ class EventModel:
         self.__classname = ""
         self.__group = ""
         self.__subject = ""
+        self.__today_flag = False
         self.__previous_day_flag = False
         self.__previous_week_flag = False

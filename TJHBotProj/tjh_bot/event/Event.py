@@ -112,6 +112,17 @@ def create_next_day_start_event_list(type_list):
 
 
 ################################################
+# 今日終了のイベントを取得する
+################################################
+def create_today_end_event_list(type_list):
+    today_str = TimeUtil.get_now_str(TimeUtil.TIME_FORMAT_YYMMDD)
+    ret_list = __search_end_event_list(today_str, type_list)
+    for event in ret_list:
+        event.today_flag = True
+    return ret_list
+
+
+################################################
 # 翌日終了のイベントを取得する
 ################################################
 def create_next_day_end_event_list(type_list):
