@@ -40,11 +40,13 @@ TYPE_LIST_START_EVENT = [
     EventModel.TYPE_NAME_DISCUSS,
     EventModel.TYPE_NAME_LECTURE,
     EventModel.TYPE_NAME_SEMINAR,
-    EventModel.TYPE_NAME_ELEARNING]
+    EventModel.TYPE_NAME_ELEARNING,
+    EventModel.TYPE_NAME_APPLICATION]
 
 # 終了日時で通知するイベントの定義
 TYPE_LIST_END_EVENT = [
     EventModel.TYPE_NAME_ELEARNING,
+    EventModel.TYPE_NAME_APPLICATION,
     EventModel.TYPE_NAME_REPORT,
     EventModel.TYPE_NAME_EXAM]
 

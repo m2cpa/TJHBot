@@ -11,6 +11,7 @@ TYPE_NAME_DISCUSS = "ディスカッション"
 TYPE_NAME_SEMINAR = "ゼミナール"
 TYPE_NAME_REPORT = "課題研究"
 TYPE_NAME_LECTURE = "講義"
+TYPE_NAME_APPLICATION = "申込"
 
 ALERT_TODAY = "■■■■■■■■■　納期／本番当日です！　■■■■■■■■■"
 ALERT_PREVIOUS_DAY = "■■■■■■　納期／本番前日です！　■■■■■■"
@@ -35,9 +36,12 @@ class EventModel:
     def area(self, area):
         self.__area = area.strip()
 
-        # 地区を利用してイベントタイプを決定する（Eランのみ）
+        # 地区を利用してイベントタイプを決定する（Eラン、申込）
         if self.__area == TYPE_NAME_ELEARNING:
             self.__type = TYPE_NAME_ELEARNING
+
+        if self.__area == TYPE_NAME_APPLICATION:
+            self.__type = TYPE_NAME_APPLICATION
 
     # 年次
     @property
@@ -156,7 +160,7 @@ class EventModel:
     ################################################
     def __create_period_str(self):
         # 納期が迫っている場合に表示する
-        # 納期フラグは、Eランと研究課題について設定される
+        # 納期フラグは、Eラン、研究課題、考査、申込について設定される
         previous_message = ""
         if self.__today_flag:
             previous_message = ALERT_TODAY + "\n"
