@@ -57,8 +57,9 @@ def __create_notice_list(row_data):
         # tdタグのボディ部を取得し、お知らせかどうかを判断する
         body = td_tag.get_text(strip=True)
         if body and re.search(NOTICE_REGEX_STR, img_flag) is not None:
-            ret_list.append(body)
-            img_flag = ""
+            if body not in ret_list:
+                ret_list.append(body)
+                img_flag = ""
 
         # 子供にimgタグがあり、かつ、全国or東京の画像だった場合にフラグを立てる
         for child in td_tag.children:
