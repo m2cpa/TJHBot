@@ -59,7 +59,7 @@ def __create_notice_list(row_data):
         if body and re.search(NOTICE_REGEX_STR, img_flag) is not None:
             if body not in ret_list:
                 ret_list.append(body)
-                img_flag = ""
+            img_flag = ""
 
         # 子供にimgタグがあり、かつ、全国or東京の画像だった場合にフラグを立てる
         for child in td_tag.children:
