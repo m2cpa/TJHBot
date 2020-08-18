@@ -5,16 +5,21 @@ Created on 2020/01/14
 '''
 
 from bs4 import BeautifulSoup
+import os
 import re
 import requests
 import tjh_bot.util.DBUtil as DBUtil
 
-URL_JFAEL = "http://www.jfael.or.jp/ja/"
+URL_HTTP_JFAEL = "http://www.jfael.or.jp/ja/"
+URL_HTTP = "http"
 
 NOTICE_REGEX_STR = "ja_info_all|ja_info_tokyo"  # 全国or東京の画像があるものを抜き出す
-TAG_NAME_TD = "td"      # タグ名は大文字小文字を区別するので注意
-TAG_NAME_IMG = "img"    # タグ名は大文字小文字を区別するので注意
-ATTRI_NAME_SRC = "src"  # 属性名は大文字小文字を区別するので注意
+TAG_NAME_TD = "td"          # タグ名は大文字小文字を区別するので注意
+TAG_NAME_IMG = "img"        # タグ名は大文字小文字を区別するので注意
+TAG_NAME_A = "a"            # タグ名は大文字小文字を区別するので注意
+ATTRI_NAME_SRC = "src"      # 属性名は大文字小文字を区別するので注意
+ATTRI_NAME_HREF = "href"    # 属性名は大文字小文字を区別するので注意
+MESSAGE_MAX_LENGTH = 140
 
 
 ################################################
@@ -35,7 +40,37 @@ def __update_old_notice_list(notices):
 # 現在のJFAELのWebページを読み込む
 ################################################
 def __read_new_html_data():
-    return requests.get(URL_JFAEL).text
+    return requests.get(URL_HTTP_JFAEL).text
+
+
+################################################
+# twitterに投稿するメッセージを作成する
+################################################
+def __create_tweet_message(td_tag, body):
+    ret = ""
+
+    # AタグからURLを取得する
+    url = ""
+    for item in td_tag.find_all(TAG_NAME_A):
+        if item:
+            url = item.get(ATTRI_NAME_HREF)
+
+    # twitterの文字数制限に気を付けながら結合する
+    # twitterの文字数制限に引っかかった場合、メインメッセージを左から文字数分取得する
+    len_message = len(body + os.linesep + url)
+    if len_message <= MESSAGE_MAX_LENGTH:
+        ret = body
+    else:
+        del_len = MESSAGE_MAX_LENGTH - len_message
+        ret = body[:del_len]
+
+    # urlを付加する
+    # ただし絶対参照と相対参照が混ざっているので、絶対参照に統一した上で付加する
+    if url:
+        if URL_HTTP not in url:
+            url = URL_HTTP_JFAEL + url
+        ret = ret + os.linesep + url
+    return ret
 
 
 ################################################
@@ -57,8 +92,10 @@ def __create_notice_list(row_data):
         # tdタグのボディ部を取得し、お知らせかどうかを判断する
         body = td_tag.get_text(strip=True)
         if body and re.search(NOTICE_REGEX_STR, img_flag) is not None:
-            if body not in ret_list:
-                ret_list.append(body)
+            # tweet用のメッセージを作成する
+            tweet_message = __create_tweet_message(td_tag, body)
+            if tweet_message not in ret_list:
+                ret_list.append(tweet_message)
             img_flag = ""
 
         # 子供にimgタグがあり、かつ、全国or東京の画像だった場合にフラグを立てる
