@@ -10,7 +10,8 @@ import re
 import requests
 import tjh_bot.util.DBUtil as DBUtil
 
-URL_HTTP_JFAEL = "http://www.jfael.or.jp/ja/"
+#URL_HTTP_JFAEL = "http://www.jfael.or.jp/ja/"
+URL_HTTP_JFAEL = "https://jfael.or.jp/institution/"
 URL_HTTP = "http"
 
 NOTICE_REGEX_STR = "ja_info_all|ja_info_tokyo"  # 全国or東京の画像があるものを抜き出す
