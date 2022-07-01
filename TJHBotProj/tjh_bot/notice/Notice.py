@@ -82,36 +82,6 @@ def __create_tweet_message(notice):
 
 
 ################################################
-# twitterに投稿するメッセージを作成する
-################################################
-def __create_tweet_message_old(td_tag, body):
-    ret = ""
-
-    # AタグからURLを取得する
-    url = ""
-    for item in td_tag.find_all(TAG_NAME_A):
-        if item:
-            url = item.get(ATTRI_NAME_HREF)
-
-    # twitterの文字数制限に気を付けながら結合する
-    # twitterの文字数制限に引っかかった場合、メインメッセージを左から文字数分取得する
-    len_message = len(body + os.linesep + url)
-    if len_message <= MESSAGE_MAX_LENGTH:
-        ret = body
-    else:
-        del_len = MESSAGE_MAX_LENGTH - len_message
-        ret = body[:del_len]
-
-    # urlを付加する
-    # ただし絶対参照と相対参照が混ざっているので、絶対参照に統一した上で付加する
-    if url:
-        if URL_HTTP not in url:
-            url = URL_HTTP_JFAEL + url
-        ret = ret + os.linesep + url
-    return ret
-
-
-################################################
 # 通知情報モデルを作成する
 ################################################
 def __create_notice(dl_tag):
@@ -167,9 +137,6 @@ def __create_notice_list(row_data):
 
     # 解析パート
     # dlタグの子供としてdtタグとddタグがあり、dtタグが日付を、ddタグが詳細な内容を記載している
-    # 「お知らせ」に該当する場合、必ずimgタグで全国or東京の画像が表示されている
-    # →　tdタグの子供にimgタグがあった場合に取得フラグを立て、
-    # →　取得フラグが立っているときのtdタグのbodyがお知らせの本文であると判断する
     for article_tag in article_tags:
         class_value = article_tag.get(ATTRI_NAME_CLASS)
         if class_value is not None and class_value[0] == ATTRI_VALUE_INFORMATION:
@@ -183,39 +150,6 @@ def __create_notice_list(row_data):
                         ret_list.append(tweet_message)
 
     return ret_list
-
-################################################
-# 通知情報を抜き出したリストを作成する（削除予定）
-################################################
-def __create_notice_list_old(row_data):
-    ret_list = []
-    soup = BeautifulSoup(row_data, 'html.parser')
-
-    # tdタグを持つ要素を抜き出す
-    td_tags = soup.find_all(TAG_NAME_TD)
-
-    # 解析パート
-    # 「お知らせ」に該当する場合、必ずimgタグで全国or東京の画像が表示されている
-    # →　tdタグの子供にimgタグがあった場合に取得フラグを立て、
-    # →　取得フラグが立っているときのtdタグのbodyがお知らせの本文であると判断する
-    img_flag = ""
-    for td_tag in td_tags:
-        # tdタグのボディ部を取得し、お知らせかどうかを判断する
-        body = td_tag.get_text(strip=True)
-        if body and re.search(NOTICE_REGEX_STR, img_flag) is not None:
-            # tweet用のメッセージを作成する
-            tweet_message = __create_tweet_message(td_tag, body)
-            if tweet_message not in ret_list:
-                ret_list.append(tweet_message)
-            img_flag = ""
-
-        # 子供にimgタグがあり、かつ、全国or東京の画像だった場合にフラグを立てる
-        for child in td_tag.children:
-            if child.name == TAG_NAME_IMG:
-                img_flag = child.get(ATTRI_NAME_SRC)
-
-    return ret_list
-
 
 
 ################################################
